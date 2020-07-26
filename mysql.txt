@@ -1,0 +1,117 @@
+SELECT * from student
+--查询姓名 和年龄
+SELECT s.name,s.age  FROM student s
+SELECT DISTINCT address FROM student
+select DISTINCT name,address from student
+
+--计算math和english分数之和
+SELECT name ,math,english,math+english from student
+--如果有null参与的运算，计算结果为null
+SELECT name ,math 数学,english 英语,math+ IFNULL(english,0) 总分 from student
+
+select * from student
+--查询年龄大于20岁
+select * from student where age>=20
+--查询年龄等于20岁
+select * from student where age=20
+--查询年龄不等于20岁
+select * from student where age!=20
+select * from student where age<>20
+--查询年龄大于等于20小于等于30
+select * from student where age>=20 and age<=30
+select * from student where age BETWEEN 20 AND 30
+--查询年龄22岁，19岁，25岁的信息
+select * from student where age in (18,22,20)
+--查询英语成绩为null
+select * from student where  ISNULL(english)
+select * from student where  english is null
+--查询英语成绩不为null
+select * from student where  english is not null
+--查询姓马的有哪些
+select * from student where  name LIKE '马%'
+--查询第二个字是化的人
+select * from student where  name LIKE '_化%'
+--查询姓名是三个字的人
+select * from student where  name LIKE '___'--三个下划线
+--查询姓名中包含马德人
+select * from student where  name LIKE '%德%'
+
+--根据数学成绩排序
+select * from student ORDER BY math asc,english desc
+
+--聚合函数：将一列数据作为一个整体，进行纵向计算
+
+--count   计算个数
+--max 计算最大值
+--min 计算最小值
+--sum 求和
+--avg 计算平均值
+
+select count(1) from student
+
+select max(math) from student
+select min(math) from student
+select SUM(english) from student
+
+select avg(math) from student
+
+select * from student
+
+select sex,count(1),avg(math+IFNULL(english,0)) 总分,max(math),min(math),max(english),min(english)  from student GROUP BY sex--查询字段只能是分组字段或者聚合函数
+--分数低于70分不参与分组
+select sex,count(1),AVG(math) from student where math>=70 GROUP BY sex
+--分组后认识大于2个人
+select sex,count(1),AVG(math) from student where math>=70 GROUP BY sex HAVING count(1)>2
+--where和having的区别：1.where在分组之前限定，如果不满足条件不参与分组，having在分组之后限定，如果不满足，则不会被查询出来
+                       --where后不可以跟聚合函数，having可以举行聚合函数的判断
+select sex,count(1) total,AVG(math) from student where math>=70 GROUP BY sex HAVING total>2
+--分页查询
+select * from student LIMIT 3,3
+
+
+SELECT * from dept,emp where dept.id=emp.dept_id
+--查询员工表的名称、性别   部门表的名称
+--隐式内连接
+SELECT 
+      e.name,
+      e.gender,
+      d.name 
+from 
+      dept d,
+      emp e 
+where 
+      d.id=e.dept_id
+--显示内连接
+SELECT
+      e.name,
+      e.gender,
+      d.name 
+from 
+      emp e 
+INNER JOIN
+      dept d
+ON
+      e.dept_id=d.id
+---左外连接
+select * from dept
+select * from emp
+
+select * from emp e left JOIN dept t on e.dept_id=t.id
+--右外连接
+select * from emp e RIGHT JOIN dept t on e.dept_id=t.id
+--查询工资最高的员工信息
+select gender ,max(salary) from emp GROUP BY gender
+
+select * from emp where emp.salary=(select max(salary) from emp)
+
+--查询员工工资小于平均工资的人(子查询为单行单列)
+select * from emp where emp.salary<(select avg(salary) from emp)
+
+--查询财务部和市场部所有员工信息
+select e.id from emp e,dept d WHERE e.dept_id=d.id and d.name in('市场部','财务部')
+
+select * from emp where id in (select e.id from emp e,dept d WHERE e.dept_id=d.id and d.name in('市场部','财务部'))
+--查询员工的入职日期式2011-11-11之后的员工信息和部门信息
+select * from emp where join_date>'2011-11-11'
+select * from (select * from emp where join_date>'2011-11-11') e,dept d 
+where e.dept_id=d.id
